@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Illuminate\Support\Facades\Http;
 use R124LEfendi\InstagramPublisher\Models\InstagramAccount;
 use R124LEfendi\InstagramPublisher\Models\InstagramProfile;
 use R124LEfendi\InstagramPublisher\Models\InstagramPost;
