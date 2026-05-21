@@ -1,6 +1,6 @@
 # Meta Instagram Auto-Post Package for Laravel
 
-A highly reusable, isolated, and premium multi-user and multi-profile Instagram auto-post package for Laravel. 
+A highly reusable, isolated, and premium multi-user and multi-profile Instagram auto-post package for Laravel.
 
 This package is designed as a standalone, self-contained library so you can drop it into any Laravel project without risking routing, class, or dependency conflicts with your existing application code.
 
@@ -24,6 +24,7 @@ This package is designed as a standalone, self-contained library so you can drop
 ## 🚀 Installation & Integration Guide
 
 ### Step 1: Register Package Repository in `composer.json`
+
 To install this package, open your main Laravel application's `composer.json` and add the local path or the git repository to the `repositories` block:
 
 ```json
@@ -38,15 +39,17 @@ To install this package, open your main Laravel application's `composer.json` an
 ---
 
 ### Step 2: Install Package via Composer
+
 Require the package in your host application:
 
 ```bash
 composer require r124lefendi/instagram-publisher:dev-main
 ```
 
-*Note: Since Laravel supports package auto-discovery, it will automatically register the `R124LEfendi\InstagramPublisher\InstagramPublisherServiceProvider` service provider.*
+_Note: Since Laravel supports package auto-discovery, it will automatically register the `R124LEfendi\InstagramPublisher\InstagramPublisherServiceProvider` service provider._
 
 ### Step 3: Run Database Migrations
+
 Run your application migrations to create the required `instagram_accounts`, `instagram_profiles`, and `instagram_posts` tables:
 
 ```bash
@@ -67,23 +70,26 @@ Add your Facebook App ID and App Secret credentials inside `config/services.php`
 ```
 
 And define them in your `.env` file:
+
 ```env
 META_APP_ID="your-app-id"
 META_SECRET_KEY="your-app-secret"
 ```
 
 ### 🔑 Setting up Meta Login (OAuth 2.0)
+
 To enable the seamless **Connect with Meta / Facebook** button in the dashboard:
+
 1. Go to your **[Meta Developer Portal](https://developers.facebook.com/)** and select your App.
 2. Under **Facebook Login for Business** settings, add your application's Callback URI:
    ```text
    https://your-domain.com/instagram/callback
    ```
 3. Ensure your App has the following permissions:
-   *   `instagram_basic`
-   *   `instagram_content_publish`
-   *   `pages_show_list`
-   *   `pages_read_engagement`
+   - `instagram_basic`
+   - `instagram_content_publish`
+   - `pages_show_list`
+   - `pages_read_engagement`
 
 ---
 
@@ -92,6 +98,7 @@ To enable the seamless **Connect with Meta / Facebook** button in the dashboard:
 The package registers an Artisan console command `instagram:post-multi` for CLI-based autoposting:
 
 ### **Publish with Caption and Public Image URL**
+
 ```bash
 php artisan instagram:post-multi --caption="Beautiful sunset!" --image="https://images.unsplash.com/photo-1507525428034-b723cf961d3e"
 ```
@@ -100,7 +107,9 @@ php artisan instagram:post-multi --caption="Beautiful sunset!" --image="https://
 > **Image Crawler Constraints:** The Meta API requires that the image to be published is hosted on a **public URL** accessible by Meta's servers. In local environments (`localhost`), local file uploads will fail to be crawled by Meta unless you use a tunnel like Ngrok. For local sandbox testing, always use a direct, public web image URL.
 
 ### **Interactive Selection Mode**
+
 If you run the command without target profiles option, it will automatically display an interactive selection checklist for all your active Instagram profiles:
+
 ```bash
 php artisan instagram:post-multi --caption="Interactive post!" --image="https://example.com/image.jpg"
 ```
@@ -108,6 +117,7 @@ php artisan instagram:post-multi --caption="Interactive post!" --image="https://
 ---
 
 ## 🌐 Web Dashboard Usage
+
 Go to:
 🔗 `http://your-domain.local/instagram`
 
@@ -129,3 +139,14 @@ This will copy the dashboard template to:
 `resources/views/vendor/instagram-publisher/dashboard.blade.php`
 
 Once published, Laravel will automatically prioritize and load your custom file instead of the default package layout, giving you 100% freedom to modify or style the view to match your application's design system!
+
+## ⚠️ Troubleshooting & Sandbox Constraints
+
+### Why is my connected Instagram profile not showing up?
+
+If you completed the Meta Login flow but no Instagram profiles were imported, check the following:
+
+1. **Instagram Account Type**: Meta's Graph API **only** supports **Instagram Business** or **Instagram Creator** accounts. Standard personal accounts will be ignored by the API.
+2. **Business Portfolio Scoping**: If you created a new, empty Meta Business Portfolio during the Embedded Signup popup, the API will search inside that empty portfolio and return `0` pages.
+   - _Fix 1_: Re-run the OAuth flow and select the correct Business Portfolio that owns your Facebook Pages.
+   - _Fix 2_: Go to the **Single Profile Manual** tab on the dashboard, and manually paste your Facebook Page ID, Instagram Business Account ID, and Page Access Token.
