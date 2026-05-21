@@ -106,6 +106,10 @@ class InstagramController extends Controller
         ]);
 
         try {
+            // Validate the page access token before saving
+            $pageAccessToken = $request->input('fb_page_access_token');
+            $this->igService->validatePageAccessToken($pageAccessToken);
+
             // Create a virtual "Manual Connections" account to group manually entered pages
             $account = InstagramAccount::updateOrCreate(
                 ['fb_user_id' => 'manual_connections'],

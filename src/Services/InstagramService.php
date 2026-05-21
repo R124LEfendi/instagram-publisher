@@ -143,6 +143,29 @@ class InstagramService
     }
 
     /**
+     * Validate a Facebook Page Access Token by making a test call to /me endpoint.
+     */
+    public function validatePageAccessToken(string $pageAccessToken): bool
+    {
+        try {
+            $response = Http::get("{$this->baseUrl}/{$this->apiVersion}/me", [
+                'access_token' => $pageAccessToken,
+            ]);
+
+            if ($response->failed()) {
+                $errorData = $response->json();
+                $errorMsg = $errorData['error']['message'] ?? 'Token validation failed.';
+                throw new Exception($errorMsg);
+            }
+
+            return true;
+        } catch (Exception $e) {
+            Log::error("InstagramService - validatePageAccessToken error: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
      * Post an image and caption to a specific Instagram Business Account.
      */
     public function postToInstagram(string $instagramProfileId, string $fbPageAccessToken, string $imageUrl, ?string $caption = null): array
