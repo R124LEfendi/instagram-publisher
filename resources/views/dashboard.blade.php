@@ -854,6 +854,36 @@
                                                         Portfolio, or use the <strong>"Single Profile Manual"</strong>
                                                         tab above to connect instantly!</li>
                                                 </ul>
+
+                                                <!-- Instant Bypass (Force Import) Form -->
+                                                <div
+                                                    style="margin-top: 1rem; border-top: 1px dashed rgba(245, 158, 11, 0.2); padding-top: 1rem;">
+                                                    <p
+                                                        style="font-size: 0.8rem; color: #fbbf24; font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase;">
+                                                        <i class="fas fa-magic"></i> Bypass Instan (Force Import
+                                                        Halaman)
+                                                    </p>
+                                                    <p
+                                                        style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem; line-height: 1.4;">
+                                                        Jika Instagram Anda sudah terhubung ke Halaman Facebook namun
+                                                        tidak terdeteksi otomatis, Anda dapat memasukkan
+                                                        <strong>Facebook Page ID</strong> secara manual di bawah ini
+                                                        untuk memaksa impor profil Instagram secara instan:
+                                                    </p>
+                                                    <form
+                                                        action="{{ route('instagram.account.force-import', $account->id) }}"
+                                                        method="POST"
+                                                        style="display: flex; gap: 0.5rem; align-items: center; margin: 0;">
+                                                        @csrf
+                                                        <input type="text" name="fb_page_id" class="input-control"
+                                                            placeholder="Masukkan ID Halaman Facebook Anda..." required
+                                                            style="font-size: 0.8rem; padding: 0.45rem 0.75rem; flex: 1;">
+                                                        <button type="submit" class="btn btn-primary"
+                                                            style="padding: 0.45rem 1rem; font-size: 0.8rem; width: auto; font-weight: 600; white-space: nowrap; background: #fbbf24; color: #000; border: none; border-radius: var(--radius-md); cursor: pointer;">
+                                                            <i class="fas fa-download"></i> Bypass Instan
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </div>
                                         @else
                                             @foreach ($account->profiles as $profile)

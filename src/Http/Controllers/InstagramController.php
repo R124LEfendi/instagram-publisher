@@ -225,6 +225,61 @@ class InstagramController extends Controller
     /**
      * Publish caption and image to selected Instagram Profiles.
      */
+
+       public function forceImportPage(Request $request, InstagramAccount $account)
+    {
+        $request->validate([
+            'fb_page_id' => 'required|string|max:255',
+        ]);
+
+        $pageId = $request->input('fb_page_id');
+        $userAccessToken = $account->access_token;
+
+        try {
+            // 1. Fetch page access token and linked instagram account directly using the user access token
+            $response = Http::get("https://graph.facebook.com/v20.0/{$pageId}", [
+                'fields' => 'access_token,name,instagram_business_account{id,username,name,profile_picture_url}',
+                'access_token' => $userAccessToken,
+            ]);
+
+            if ($response->failed()) {
+                $errorMsg = $response->json()['error']['message'] ?? 'Failed to query the Facebook Page. Please ensure the Page ID is correct and you have admin rights.';
+                throw new Exception($errorMsg);
+            }
+
+            $data = $response->json();
+            $pageAccessToken = $data['access_token'] ?? null;
+            $pageName = $data['name'] ?? $pageId;
+
+            if (!$pageAccessToken) {
+                throw new Exception("Could not retrieve access token for Page '{$pageName}'. Please make sure you are an admin of this Page.");
+            }
+
+            $igData = $data['instagram_business_account'] ?? null;
+            if (!$igData) {
+                throw new Exception("No Instagram Business or Creator Account is linked to Facebook Page '{$pageName}'. Please link it first under Facebook Page Settings > Linked Accounts.");
+            }
+
+            // 2. Create or Update the InstagramProfile row in database
+            $profile = InstagramProfile::updateOrCreate(
+                ['instagram_profile_id' => $igData['id']],
+                [
+                    'instagram_account_id' => $account->id,
+                    'instagram_username' => $igData['username'],
+                    'instagram_name' => $igData['name'] ?? $igData['username'],
+                    'fb_page_id' => $pageId,
+                    'fb_page_access_token' => $pageAccessToken,
+                    'avatar' => $igData['profile_picture_url'] ?? null,
+                    'is_active' => true,
+                ]
+            );
+
+            return redirect()->route('instagram.dashboard')->with('success', "Successfully force-imported Instagram Profile @{$profile->instagram_username} linked to Page '{$pageName}'!");
+
+        } catch (Exception $e) {
+            return redirect()->route('instagram.dashboard')->with('error', "Import failed: " . $e->getMessage());
+        }
+    }
     public function post(Request $request)
     {
         $request->validate([

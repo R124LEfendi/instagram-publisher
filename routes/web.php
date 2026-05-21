@@ -12,5 +12,6 @@ Route::middleware(['web'])->prefix('instagram')->name('instagram.')->group(funct
     Route::get('/callback', [InstagramController::class, 'handleCallback'])->name('callback');
     Route::delete('/account/{account}', [InstagramController::class, 'deleteAccount'])->name('account.delete');
     Route::post('/account/{account}/renew', [InstagramController::class, 'renewToken'])->name('account.renew');
+    Route::post('/account/{account}/force-import-page', [InstagramController::class, 'forceImportPage'])->name('account.force-import');
     Route::post('/post', [InstagramController::class, 'post'])->name('post');
 });
