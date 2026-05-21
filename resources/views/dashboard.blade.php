@@ -858,17 +858,38 @@
                                                 <!-- Instant Bypass (Force Import) Form -->
                                                 <div
                                                     style="margin-top: 1rem; border-top: 1px dashed rgba(245, 158, 11, 0.2); padding-top: 1rem;">
+                                                    
+                                                    <!-- Auto Scan Pages Option -->
+                                                    <div style="margin-bottom: 1.25rem; border-bottom: 1px dashed rgba(245, 158, 11, 0.1); padding-bottom: 1.25rem;">
+                                                        <p
+                                                            style="font-size: 0.8rem; color: #a855f7; font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase;">
+                                                            <i class="fas fa-search-plus"></i> Opsi Utama: Pindai & Bypass Otomatis
+                                                        </p>
+                                                        <p
+                                                            style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem; line-height: 1.4;">
+                                                            Sistem akan otomatis memindai seluruh Halaman Facebook yang terhubung dan mengimpor semua akun Instagram Business Anda secara instan:
+                                                        </p>
+                                                        <form
+                                                            action="{{ route('instagram.account.auto-scan', $account->id) }}"
+                                                            method="POST"
+                                                            style="margin: 0;">
+                                                            @csrf
+                                                            <button type="submit" class="btn"
+                                                                style="width: 100%; padding: 0.55rem 1rem; font-size: 0.8rem; font-weight: 700; background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%); color: #fff; border: none; border-radius: var(--radius-md); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s;"
+                                                                onclick="this.innerHTML='<i class=\'fas fa-spinner fa-spin\'></i> Memindai halaman...'; this.style.opacity='0.8';">
+                                                                <i class="fas fa-sync-alt"></i> Pindai & Bypass Otomatis
+                                                            </button>
+                                                        </form>
+                                                    </div>
+
+                                                    <!-- Manual Bypass Option -->
                                                     <p
                                                         style="font-size: 0.8rem; color: #fbbf24; font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase;">
-                                                        <i class="fas fa-magic"></i> Bypass Instan (Force Import
-                                                        Halaman)
+                                                        <i class="fas fa-magic"></i> Opsi Cadangan: Bypass Instan (Manual)
                                                     </p>
                                                     <p
                                                         style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem; line-height: 1.4;">
-                                                        Jika Instagram Anda sudah terhubung ke Halaman Facebook namun
-                                                        tidak terdeteksi otomatis, Anda dapat memasukkan
-                                                        <strong>Facebook Page ID</strong> secara manual di bawah ini
-                                                        untuk memaksa impor profil Instagram secara instan:
+                                                        Jika pemindaian otomatis di atas tidak menemukan halaman Anda, masukkan <strong>Facebook Page ID</strong> secara manual di bawah ini:
                                                     </p>
                                                     <form
                                                         action="{{ route('instagram.account.force-import', $account->id) }}"
@@ -920,6 +941,21 @@
                                                     </div>
                                                 </div>
                                             @endforeach
+
+                                            <!-- Auto Sync Button for already connected profiles -->
+                                            <div style="margin-top: 1rem; display: flex; justify-content: flex-end;">
+                                                <form
+                                                    action="{{ route('instagram.account.auto-scan', $account->id) }}"
+                                                    method="POST"
+                                                    style="margin: 0;">
+                                                    @csrf
+                                                    <button type="submit" class="btn"
+                                                        style="padding: 0.45rem 1rem; font-size: 0.75rem; font-weight: 600; background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.3); color: #c084fc; border-radius: var(--radius-md); cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: all 0.2s;"
+                                                        onclick="this.innerHTML='<i class=\'fas fa-spinner fa-spin\'></i> Scanning...'; this.style.opacity='0.8';">
+                                                        <i class="fas fa-sync-alt"></i> Pindai Ulang & Sinkron Halaman
+                                                    </button>
+                                                </form>
+                                            </div>
                                         @endif
                                     </div>
                                 </div>

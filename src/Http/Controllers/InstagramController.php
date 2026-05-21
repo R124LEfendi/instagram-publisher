@@ -280,6 +280,85 @@ class InstagramController extends Controller
             return redirect()->route('instagram.dashboard')->with('error', "Import failed: " . $e->getMessage());
         }
     }
+
+    /**
+     * Automatically scan all Facebook pages for this account and import linked Instagram profiles.
+     */
+    public function autoScanPages(InstagramAccount $account)
+    {
+        $userAccessToken = $account->access_token;
+
+        try {
+            // 1. Fetch all Facebook Pages managed by this User
+            $response = Http::get("https://graph.facebook.com/v20.0/me/accounts", [
+                'fields' => 'id,name,access_token',
+                'access_token' => $userAccessToken,
+                'limit' => 200,
+            ]);
+
+            if ($response->failed()) {
+                $errorMsg = $response->json()['error']['message'] ?? 'Failed to retrieve Facebook pages for this account.';
+                throw new Exception($errorMsg);
+            }
+
+            $pages = $response->json()['data'] ?? [];
+
+            if (empty($pages)) {
+                return redirect()->route('instagram.dashboard')->with('warning', 'No Facebook pages were found linked to this Meta account. Make sure you are an administrator of the pages.');
+            }
+
+            $scannedCount = 0;
+            $importedCount = 0;
+
+            // 2. Loop through pages to bypass/query and import linked Instagram Business Accounts
+            foreach ($pages as $page) {
+                $scannedCount++;
+                try {
+                    $pageId = $page['id'];
+                    $pageResponse = Http::get("https://graph.facebook.com/v20.0/{$pageId}", [
+                        'fields' => 'access_token,name,instagram_business_account{id,username,name,profile_picture_url}',
+                        'access_token' => $userAccessToken,
+                    ]);
+
+                    if ($pageResponse->successful()) {
+                        $data = $pageResponse->json();
+                        $pageAccessToken = $data['access_token'] ?? $page['access_token'] ?? null;
+                        $pageName = $data['name'] ?? $page['name'] ?? $pageId;
+
+                        if ($pageAccessToken && isset($data['instagram_business_account'])) {
+                            $igData = $data['instagram_business_account'];
+
+                            InstagramProfile::updateOrCreate(
+                                ['instagram_profile_id' => $igData['id']],
+                                [
+                                    'instagram_account_id' => $account->id,
+                                    'instagram_username' => $igData['username'],
+                                    'instagram_name' => $igData['name'] ?? $igData['username'],
+                                    'fb_page_id' => $pageId,
+                                    'fb_page_access_token' => $pageAccessToken,
+                                    'avatar' => $igData['profile_picture_url'] ?? null,
+                                    'is_active' => true,
+                                ]
+                            );
+                            $importedCount++;
+                        }
+                    }
+                } catch (Exception $innerEx) {
+                    Log::warning("Instagram AutoScan - Failed scanning page {$page['id']}: " . $innerEx->getMessage());
+                }
+            }
+
+            if ($importedCount === 0) {
+                return redirect()->route('instagram.dashboard')->with('info', "Scanned {$scannedCount} Facebook pages, but none of them had a linked Instagram Business Account. Please check your page settings or use 'Bypass Instan' if you have a specific Page ID.");
+            }
+
+            return redirect()->route('instagram.dashboard')->with('success', "Auto-scan completed! Successfully scanned {$scannedCount} Facebook pages and automatically imported/updated {$importedCount} Instagram profiles.");
+
+        } catch (Exception $e) {
+            return redirect()->route('instagram.dashboard')->with('error', "Auto-scan failed: " . $e->getMessage());
+        }
+    }
+
     public function post(Request $request)
     {
         $request->validate([

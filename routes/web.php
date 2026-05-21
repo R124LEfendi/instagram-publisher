@@ -13,5 +13,6 @@ Route::middleware(['web'])->prefix('instagram')->name('instagram.')->group(funct
     Route::delete('/account/{account}', [InstagramController::class, 'deleteAccount'])->name('account.delete');
     Route::post('/account/{account}/renew', [InstagramController::class, 'renewToken'])->name('account.renew');
     Route::post('/account/{account}/force-import-page', [InstagramController::class, 'forceImportPage'])->name('account.force-import');
+    Route::post('/account/{account}/auto-scan', [InstagramController::class, 'autoScanPages'])->name('account.auto-scan');
     Route::post('/post', [InstagramController::class, 'post'])->name('post');
 });
